@@ -1,34 +1,28 @@
-;Greatest of three numbers using nested if else: Error encountered
-
-    
-	THUMB
-	 AREA     factorial, CODE, READONLY
+     AREA     nestedloop, CODE, READONLY
      EXPORT __main
      ENTRY 
 __main  FUNCTION	
 ; IGNORE THIS PART 	
-     MOV R1,#0x00000010
-	 MOV R2,#0x00000025
-	 MOV R3,#0x00000110
-	 CMP R1,R2
-     ITTE GE
-	 CMPGE R1,R3
-	 ITEGE GE
-	 MOVGE R4,R1
-	 MOVLT R4,R3
-	 CMPLT R2,R3
-     ITELT GE
-	 MOVGE R4,R1
-	 MOVLT R4,R3
+		MOV  r0, #0x00000002      
+		MOV r1 , #0x00000008	
+		MOV r2,  #0x00000005;
+		
+        CMP r0,r1;
+		ITE EQ ; if content r1 and r2 are equal then execute the next statement else go to the label loop
+        MOVEQ r4 , #1; in case r0 = r1 then move '1' to r4
+        BNE loop		
+		B stop		;first if then else and then goes into the loop
 
-stop    B stop ; stop program
-     ENDFUNC
-     END 
-	 
- 
-Error: 
-first.s(16): error: A1163E: Unknown opcode ITEGE , expecting opcode or Macro
-first.s(20): error: A1163E: Unknown opcode ITELT , expecting opcode or Macro  
-	 
- 
- 
+loop	CMP r1, #3
+		ITE LT
+		LSLLT r2, #1
+		MOVGE r2, #2
+				
+
+stop        B stop  ; stop program
+        endfunc
+      end
+
+  
+
+	   
