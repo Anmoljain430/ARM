@@ -1,17 +1,56 @@
 	THUMB
-	  AREA     sinx, CODE, READONLY
+	  AREA     sinx, CODE 
+      IMPORT   printMsg
+      IMPORT   printMsg2p		  
       EXPORT __main
       ENTRY 
 __main  FUNCTION
 	VLDR.F32 S31, =3.14159 ; storing Pi value 
 	VLDR.F32 S30, =180 ; 
 	VDIV.F32 S29,S31,S30 ; Pi/180
-
-	VLDR.F32 S1,=45 ; angle in degrees
-    BL sin  ;anmol added
-	BL cos
-	B  stop
-	
+	VLDR.F32 S1,=0 ; angle in degrees
+	VLDR.F32 S16,=50 ; No of terms in a series 
+	MOV R3,#1 ; counting variable i
+	MOV R4,#50;
+	VLDR.F32 S18,=0;
+	VLDR.F32 S19,=1;
+	VLDR.F32 S24,=100;
+	VLDR.F32 S27,=320;
+	VLDR.F32 S28,=240;
+	MOV  R0, #0x20000000  ; Memory location to store the result
+	STR R3,[R0]
+    ;MOV  R3, #0x20000005  ; Memory location to store the result
+	;STR R4,[R0]
+; angle iteration
+Angle   CMP R2,#25		;Compare 'i' and 'n' 
+		BLE Cord		;if i < n goto LOOP
+        B   stop
+		
+Cord	BL sin  ;anmol added
+        VMUL.F32 S0,S24,S0
+		;VCVT.U32.F32 S0,S0
+		;VADD.F32 S0,S0,S17;
+		VADD.F32 S0,S0,S28
+		VMOV.F32 R0,S0;
+		BL printMsg
+		BL cos
+		VMUL.F32 S9,S24,S9
+		;VCVT.U32.F32 S9,S9
+		VADD.F32 S9,S9,S27
+		VMOV.F32 R0,S9;
+		BL printMsg
+		VLDR.F32 S17,=15;
+		VADD.F32 S1,S1,S17;
+		;VADD.F32 S18,s18,s19;
+		;VMOV.F32 R3,S18;
+		;VMOV.F32 R4,S16;
+		MOV  R0, #0x20000000  ; Memory location to store the result
+	    LDR R2,[R0]
+		ADD R2,R2,#1;
+		STR R2,[R0]
+		B Angle
+		;B  stop
+;angle	
 sin     VMUL.F32 S2,S1,S29 ; (pi/180)*angle - given angle is converted to radians 
 
 	    VMUL.F32 S3,S2,S2 ; x*x
@@ -28,7 +67,7 @@ sin     VMUL.F32 S2,S1,S29 ; (pi/180)*angle - given angle is converted to radian
 	    VMOV.F32 S11,S2
 	    VMOV.F32 S0,S2 
 
-COUNT   CMP R1,R0		;Compare 'i' and 'n' 
+COUNT   CMP R1,#10   ;R0		;Compare 'i' and 'n' 
 		BLE LOOP		;if i < n goto LOOP
 		VMOV.F32 S22,S0
 		BX  lr
@@ -46,7 +85,8 @@ LOOP    VMUL.F32 S7,S4,S5	; 2*i
 			
 ;added for cosx
 ;Every term has to be multiplied by x^2 for next iteration 
-cos 	VMUL.F32 S3,S2,S2 ; x*x
+cos     VMUL.F32 S2,S1,S29 ; (pi/180)*angle - given angle is converted to radians
+        VMUL.F32 S3,S2,S2 ; x*x
 
 		VLDR.F32 S4,=2 ; to calculate 2*i, ((2*i)+1) and ((2*i)-1)
 
@@ -61,9 +101,8 @@ cos 	VMUL.F32 S3,S2,S2 ; x*x
 		VLDR.F32 S9,=1 ; Cosx  result is stored in s20 register
 		VLDR.F32 S15,=1	; Using S15 to store the intermediate result of cosx
 
-COUNT1  CMP R1,R0			;Compare 'i' and 'n' 
+COUNT1  CMP R1,#10   ;R0			;Compare 'i' and 'n' 
 		BLE LOOP1			;if i < n goto LOOP
-		VMOV.F32 S21,S0
 		BX  lr
 		;B stop				;else goto stop
 			
